@@ -1,0 +1,10 @@
+node_modules
+.env
+/logs
+/uploads
+*~
+*.ts~
+/design
+/src/generated/prisma
+service-account.json
+/generated/prisma

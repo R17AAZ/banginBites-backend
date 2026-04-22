@@ -1,0 +1,395 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+enum UserRole {
+  ADMIN
+  USER
+  GUEST
+  CUSTOMER
+  SELLER
+  BUYER
+}
+
+enum UserStatus {
+  ACTIVE
+  RESTRICTED
+  DELETED
+}
+
+enum VerificationType {
+  ACCOUNT_ACTIVATION
+  RESET_PASSWORD
+}
+
+enum PublicContentType {
+  PRIVACY_POLICY
+  TERMS_AND_CONDITION
+  CONTACT
+  ABOUT
+}
+
+enum NotificationType {
+  REVIEW_RECEIVED
+  REVIEW_REPLIED
+  SYSTEM_ALERT
+  LOGIN_DETECTED
+  ORDER_PLACED
+  ORDER_STATUS_UPDATED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  ONLINE
+  COD
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model User {
+  id                    String          @id @default(uuid())
+  name                  String?
+  email                 String          @unique
+  phone                 String?
+  status                UserStatus      @default(ACTIVE)
+  verified              Boolean         @default(false)
+  profile               String?
+  role                  UserRole        @default(USER)
+  
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  // 1:1 Relations
+  account               UserAccount?
+  metrics               UserMetrics?
+  address               UserAddress?
+
+  // 1:N Relations
+  devices               UserDevice[]
+  socialAccounts        SocialAccount[]
+  
+  notificationsSent     Notification[]  @relation("SentNotifications")
+  notificationsReceived Notification[]  @relation("ReceivedNotifications")
+  reviewsReceived       Review[]        @relation("ReviewsReceived")
+  reviewsGiven          Review[]        @relation("ReviewsGiven")
+  tokens                Token[]
+  
+  // Marketplace Relations
+  dishes                Dish[]          @relation("SellerDishes")
+  ordersAsBuyer         Order[]         @relation("BuyerOrders")
+  ordersAsSeller        Order[]         @relation("SellerOrders")
+  categories            Category[]      @relation("SellerCategories")
+  favorites             Favorite[]      @relation("UserFavorites")
+
+  @@map("users")
+}
+
+model UserAccount {
+  id                 String    @id @default(uuid())
+  userId             String    @unique
+  password           String
+  isRestricted       Boolean   @default(false)
+  restrictionLeftAt  DateTime?
+  wrongLoginAttempts Int       @default(0)
+  passwordChangedAt  DateTime?
+  
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_accounts")
+}
+
+model UserMetrics {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  rating      Float    @default(0.0)
+  totalReview Int      @default(0)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_metrics")
+}
+
+model UserAddress {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  street    String?
+  city      String?
+  state     String?
+  zipCode   String?
+  country   String?  @default("US")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_addresses")
+}
+
+model UserDevice {
+  id        String   @id @default(uuid())
+  userId    String
+  fcmToken  String   @unique
+  deviceType String? // e.g., ios, android, web
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_devices")
+}
+
+model SocialAccount {
+  id         String   @id @default(uuid())
+  userId     String
+  provider   String   // e.g., GOOGLE, APPLE
+  providerId String   @unique
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provider])
+  @@map("social_accounts")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  fromId    String?
+  toId      String
+  title     String?
+  body      String?
+  type      NotificationType @default(SYSTEM_ALERT)
+  metadata  Json?            // For dynamic data like reviewId, actionUrl
+  isAdmin   Boolean?         @default(false)
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  from      User?            @relation("SentNotifications", fields: [fromId], references: [id], onDelete: SetNull)
+  to        User             @relation("ReceivedNotifications", fields: [toId], references: [id], onDelete: Cascade)
+
+  @@index([toId])
+  @@map("notifications")
+}
+
+model Token {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("tokens")
+}
+
+model Verification {
+  id            String           @id @default(uuid())
+  type          VerificationType
+  identifier    String
+  otpHash       String?
+  latestRequest DateTime?
+  otpExpiresAt  DateTime?
+  requestCount  Int              @default(0)
+  expiresAt     DateTime
+  attempts      Int              @default(0)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@unique([identifier, type])
+  @@map("verifications")
+}
+
+model PublicContent {
+  id        String            @id @default(uuid())
+  type      PublicContentType @unique
+  content   String
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@map("public_contents")
+}
+
+model Faq {
+  id        String   @id @default(uuid())
+  question  String
+  answer    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("faqs")
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  image       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  dishes      Dish[]
+  sellers     User[]   @relation("SellerCategories")
+
+  @@map("categories")
+}
+
+model Dish {
+  id           String      @id @default(uuid())
+  sellerId     String
+  categoryId   String
+  name         String
+  description  String
+  price        Float
+  images       Json?       // Array of image URLs
+  hygieneInfo  String?
+  isAvailable  Boolean     @default(true)
+  rating       Float       @default(0.0)
+  totalReview  Int         @default(0)
+  preparationTime Int?
+  ingredients     Json?
+  isFreeDelivery  Boolean     @default(false)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  seller       User        @relation("SellerDishes", fields: [sellerId], references: [id], onDelete: Cascade)
+  category     Category    @relation(fields: [categoryId], references: [id])
+  orderItems   OrderItem[]
+  reviews      Review[]    @relation("DishReviews")
+  favoriteBy   Favorite[]  @relation("DishFavorites")
+
+  @@index([sellerId])
+  @@index([categoryId])
+  @@map("dishes")
+}
+
+model Order {
+  id             String        @id @default(uuid())
+  buyerId        String
+  sellerId       String
+  totalAmount    Float
+  platformFee    Float         @default(0.0)
+  sellerAmount   Float         @default(0.0)
+  status         OrderStatus   @default(PENDING)
+  paymentMethod  PaymentMethod @default(ONLINE)
+  paymentStatus  PaymentStatus @default(PENDING)
+  deliveryOTP    String?
+  deliveryAddress String?
+  deliveryOption String?       @default("DELIVERY") // DELIVERY or COLLECTION
+  
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  buyer          User          @relation("BuyerOrders", fields: [buyerId], references: [id])
+  seller         User          @relation("SellerOrders", fields: [sellerId], references: [id])
+  items          OrderItem[]
+  payment        Payment?
+  reviews        Review[]
+
+  @@index([buyerId])
+  @@index([sellerId])
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  dishId    String
+  quantity  Int
+  price     Float    // Price at the time of order
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  dish      Dish     @relation(fields: [dishId], references: [id])
+
+  @@map("order_items")
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  orderId       String        @unique
+  transactionId String?       @unique
+  amount        Float
+  method        PaymentMethod
+  status        PaymentStatus @default(PENDING)
+  metadata      Json?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  order         Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  reviewerId String
+  revieweeId String   // Seller ID
+  dishId     String   // Mandatory specific dish review
+  orderId    String   // Link to the specific order
+  rating     Float
+  review     String
+  reply      String?
+  repliedAt  DateTime?
+  isHidden   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  order      Order    @relation(fields: [orderId], references: [id])
+  reviewee   User     @relation("ReviewsReceived", fields: [revieweeId], references: [id], onDelete: Cascade)
+  reviewer   User     @relation("ReviewsGiven", fields: [reviewerId], references: [id], onDelete: Cascade)
+  dish       Dish     @relation("DishReviews", fields: [dishId], references: [id])
+
+  @@unique([reviewerId, orderId, dishId])
+  @@index([revieweeId])
+  @@index([dishId])
+  @@index([orderId])
+  @@map("reviews")
+}
+
+
+model Favorite {
+  id        String   @id @default(uuid())
+  userId    String
+  dishId    String
+  createdAt DateTime @default(now())
+
+  user      User     @relation("UserFavorites", fields: [userId], references: [id], onDelete: Cascade)
+  dish      Dish     @relation("DishFavorites", fields: [dishId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dishId])
+  @@map("favorites")
+}

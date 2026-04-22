@@ -1,0 +1,14 @@
+export enum USER_ROLES {
+  ADMIN = 'ADMIN',
+
+  GUEST = 'GUEST',
+
+  SELLER = 'SELLER',
+  BUYER = 'BUYER',
+}
+
+export enum USER_STATUS {
+  ACTIVE = 'ACTIVE',
+  RESTRICTED = 'RESTRICTED',
+  DELETED = 'DELETED',
+}
