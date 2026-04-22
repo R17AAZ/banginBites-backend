@@ -157,5 +157,5 @@ Created and maintained by the Bangin Bites team.
 **License**: ISC
 stion, please open an issue or submit a pull request.
 
-**Maintainer**: [Asaduzzaman](https://github.com/Asaduzzama-n)  
+
 **License**: MIT
