@@ -1,47 +1,55 @@
 <div align="center">
+  <img src="https://img.shields.io/badge/Bangin%20Bites-Backend-FF4500?style=for-the-badge&logo=fastapi&logoColor=white" alt="Bangin Bites" />
+  <br />
   <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js" />
   <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express.js" />
   <img src="https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white" alt="Prisma" />
   <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
   <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
+  <img src="https://img.shields.io/badge/Stripe-635BFF?style=for-the-badge&logo=stripe&logoColor=white" alt="Stripe" />
 </div>
 
-# 🚀 template-sql
+# 🍕 Bangin Bites - Enterprise Marketplace Backend
 
-**The Ultimate Enterprise-Grade Backend Architecture for High-Performance SQL Applications.**
+**The robust, scalable, and high-performance core of the Bangin Bites food marketplace ecosystem.**
 
-Welcome to **template-sql**, a battle-tested Boilerplate meticulously designed for developers who demand scalability, security, and developer experience. Built on **Node.js**, **Express**, and **Prisma 7**, this template offers a robust foundation for modern web applications, moving from "Zero to Production" with confidence.
+Bangin Bites is a modern marketplace platform designed to bridge the gap between passionate food creators (Sellers) and hungry foodies (Buyers). This backend provides a battle-tested architecture that handles everything from real-time order tracking to secure financial transactions.
 
 ---
 
 ## 🏛️ Architecture & Philosophy
 
-The core philosophy of this project is **Performance Isolation** and **Domain-Driven Design (DDD)**. We tackle the common pitfalls of monolithic Node.js applications by decoupling heavy operations and leveraging specialized services.
+The project follows a **Modular Monolith** architecture with **Domain-Driven Design (DDD)** principles. It is built for developers who prioritize type safety, scalability, and ease of maintenance.
 
--   **Domain-Driven Modules**: Everything is grouped by business logic (User, Auth, Payment) rather than technical type, ensuring maintainability as the codebase grows.
--   **Prisma 7 & PostgreSQL**: Harness the power of a modern Type-safe ORM and a dependable relational database for complex data integrity.
--   **Redis Backbone**: Used for high-speed caching, distributed background tasks (BullMQ), and scaling Socket.IO across multiple instances.
--   **RustFS Integration**: Offload heavy binary management to a dedicated, high-performance S3-compatible service, keeping your API stateless and responsive.
+- **Modular Design**: Business logic is encapsulated in independent modules (User, Dish, Order, etc.), making the codebase easy to navigate and scale.
+- **Type-Safe Core**: Leveraging **TypeScript** and **Prisma 7** for end-to-end type safety from the database to the API response.
+- **Asynchronous Backbone**: Powered by **Redis** and **BullMQ** for reliable background job processing and horizontal scaling.
+- **Real-Time Synergy**: Integrated **Socket.IO** with Redis adapter for instantaneous notifications and order updates.
 
 ---
 
 ## ✨ Key Features
 
-### 🛡️ Hardened Security
--   **Hybrid JWT Strategy**: Combines short-lived access tokens with rotatable, persistent refresh tokens.
--   **Lockout Protection**: Automatic account restriction after failed login attempts, managed via Redis.
--   **Zod Validation**: Strict schema validation for every request, ensuring no malformed data reaches your controllers.
--   **Helmet & Rate Limiting**: Production-ready security headers and DDoS protection.
+### 🛒 Marketplace Engine
+- **Sellers & Dishes**: Complete lifecycle management for food creators, including dish catalogs, pricing, and availability.
+- **Discovery**: Categorized food items with rich metadata (preparation time, ingredients, hygiene info).
+- **Favorites**: Personalized wishlists for users to track their favorite bites.
 
-### 📡 Scalable Real-Time & Background Processing
--   **Socket.IO with Redis**: Unified real-time communication that scales horizontally across clusters.
--   **BullMQ Background Tasks**: Dedicated queue system for maintenance jobs and asynchronous processing.
--   **Automated Maintenance**: Pre-configured crons for daily user purges and weekly cache refreshes.
+### 📦 Order & Logistics
+- **State-of-the-Art Tracking**: Real-time order lifecycle management (Pending → Preparing → Delivered).
+- **Secure Handoff**: Delivery OTP verification system to ensure food reaches the right person.
+- **Platform Integrity**: Built-in platform fees and automated seller amount calculations.
 
-### 🖼️ Advanced Media Handling
--   **Sharp Optimization**: Automatic image resizing and optimization on-the-fly.
--   **Multi-Cloud Storage**: Seamless support for local, Cloudinary, and high-speed RustFS storage.
+### 💳 Payments & Security
+- **Hybrid Payments**: Support for secure **Stripe** online transactions and Cash on Delivery (COD).
+- **Hardened Auth**: JWT-based authentication with refresh token rotation and social login support (Google/Apple).
+- **Zero-Trust Validation**: Strict request validation using **Zod** and advanced rate limiting for DDoS protection.
+
+### 🔔 Communication & Analytics
+- **Multi-Channel Notifications**: Real-time alerts via **Socket.IO** and push notifications via **Firebase (FCM)**.
+- **Feedback Loop**: Comprehensive review and rating system for both dishes and sellers.
+- **Data Insights**: Built-in analytics module to track platform growth and user behavior.
 
 ---
 
@@ -54,50 +62,52 @@ The core philosophy of this project is **Performance Isolation** and **Domain-Dr
 | **Database** | PostgreSQL |
 | **ORM** | Prisma 7 |
 | **Caching/Queue** | Redis (BullMQ) |
-| **Security** | JWT, bcrypt, Zod, Helmet |
+| **Security** | JWT, Zod, Helmet, Bcrypt |
+| **Payments** | Stripe |
 | **Real-time** | Socket.IO |
-| **Media** | Sharp, RustFS (S3), Cloudinary |
-| **Logging** | Winston & Morgan |
+| **Notifications** | Firebase (FCM), Twilio (SMS) |
+| **Media** | Sharp, AWS S3 / Cloudinary |
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
--   **Node.js** (v18+)
--   **Docker** & **Docker Compose**
--   **PostgreSQL** (if running locally without Docker)
+- **Node.js** (v18+)
+- **PostgreSQL**
+- **Redis**
+- **Docker** (Optional, for containerized deployment)
 
 ### Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone https://github.com/Asaduzzama-n/template-sql.git
-    cd template-sql
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd banginBites-backend
+   ```
 
-2.  **Install dependencies**:
-    ```bash
-    npm install
-    ```
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-3.  **Configure Environment**:
-    Create a `.env` file based on `.example.env` and fill in your credentials.
-    ```bash
-    cp .example.env .env
-    ```
+3. **Configure Environment**:
+   Create a `.env` file from the example and fill in your credentials.
+   ```bash
+   cp .example.env .env
+   ```
 
-4.  **Database Migration**:
-    Initialize your PostgreSQL database using Prisma.
-    ```bash
-    npx prisma migrate dev
-    npx prisma generate
-    ```
+4. **Initialize Database**:
+   ```bash
+   npx prisma migrate dev
+   npx prisma generate
+   npx prisma db seed
+   ```
 
-5.  **Run Dev Server**:
-    ```bash
-    npm run dev
-    ```
+5. **Run Development Server**:
+   ```bash
+   npm run dev
+   ```
 
 ---
 
@@ -106,42 +116,46 @@ The core philosophy of this project is **Performance Isolation** and **Domain-Dr
 ```text
 src/
 ├── app/
-│   ├── middleware/        # Global security & validation logic
-│   ├── modules/           # Business Domains (User, Auth, etc.)
-│   │   ├── auth/          # Authentication & JWT management
-│   │   ├── user/          # Profile & User metrics
-│   │   └── maintenance/   # Background jobs & Crons
-│   └── routes/            # Main API routing
-├── config/                # Environment-specific configuration
+│   ├── middleware/        # Global security, validation & error handling
+│   └── modules/           # Business Domains (The Heart of the App)
+│       ├── auth/          # Authentication & Social Login
+│       ├── dish/          # Product/Dish management
+│       ├── order/         # Order lifecycle logic
+│       ├── payment/       # Stripe & Payment integration
+│       └── ...            # Other business modules
+├── config/                # Environment & App configuration
+├── helpers/               # Socket, Email, Firebase, and S3 helpers
 ├── sdk/                   # 🔌 Shared Native Fetch SDK for Frontend clients
-├── shared/                # Utilities, Logger, and Prisma Client
-├── helpers/               # Socket, Email, and File helpers
-└── server.ts              # Entry point
+├── shared/                # Shared utilities & Prisma client
+└── server.ts              # Application entry point
 ```
 
 ---
 
 ## 🔌 Frontend Integration (SDK)
 
-This project includes a built-in, zero-dependency **Native Fetch SDK** located in `src/sdk`. This ensures 100% type safety and painless integration for both your Mobile (React Native) and Desktop (Next.js/React) teams. 
+To ensure 100% type safety and seamless integration with your Next.js or React Native apps, use the built-in **Native Fetch SDK**.
 
-**👉 See the full integration guide: [SDK Documentation](./SDK_DOCUMENTATION.md)**
+**👉 See the [SDK Documentation](./SDK_DOCUMENTATION.md) for integration details.**
 
 ---
 
 ## 🐳 Docker Deployment
 
-This project utilizes a **multi-stage build** for minimal production image size and maximum security.
+The project includes a production-ready `Dockerfile` and `docker-compose.yml` for easy deployment.
 
-**Launch the full stack (App, Postgre, Redis):**
 ```bash
 docker-compose up --build -d
 ```
 
 ---
 
-## 🤝 Contributing
-Contributions are welcome! If you find a bug or have a suggestion, please open an issue or submit a pull request.
+## 🤝 Contributing & License
+
+Created and maintained by the Bangin Bites team.
+
+**License**: ISC
+stion, please open an issue or submit a pull request.
 
 **Maintainer**: [Asaduzzaman](https://github.com/Asaduzzama-n)  
 **License**: MIT
